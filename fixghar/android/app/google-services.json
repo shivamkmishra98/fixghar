@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "112691437099",
+    "project_id": "fixghar-25bb6",
+    "storage_bucket": "fixghar-25bb6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112691437099:android:6e04249ef9a2615db6d46e",
+        "android_client_info": {
+          "package_name": "com.example.fixghar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDs9qcIrsrapcfIkWndbuZOpZKnT1P2E30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112691437099:android:2e11bee6e092ebedb6d46e",
+        "android_client_info": {
+          "package_name": "com.example.fixghar3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDs9qcIrsrapcfIkWndbuZOpZKnT1P2E30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
