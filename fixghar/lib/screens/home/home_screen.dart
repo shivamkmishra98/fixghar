@@ -231,25 +231,47 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Category grid — 4 columns
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => CategoryCard(
-                  category: categories[index],
-                  onTap: () => _openCategory(categories[index]),
-                ),
-                childCount: categories.length,
-              ),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                childAspectRatio: 0.65,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
+          // SliverPadding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 20),
+          //   sliver: SliverGrid(
+          //     delegate: SliverChildBuilderDelegate(
+          //       (context, index) => CategoryCard(
+          //         category: categories[index],
+          //         onTap: () => _openCategory(categories[index]),
+          //       ),
+          //       childCount: categories.length,
+          //     ),
+          //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //       crossAxisCount: 4,
+          //       childAspectRatio: 1.0,
+          //       crossAxisSpacing: 12,
+          //       mainAxisSpacing: 12,
+          //     ),
+          //   ),
+          // ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 110,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  return SizedBox(
+                    width: 75,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: CategoryCard(
+                        category: categories[index],
+                        onTap: () => _openCategory(categories[index]),
+                      ),
+                    ),
+                  );
+                 },
+               ),
               ),
             ),
-          ),
-
+          
           // ----------------------------------------------------------------
           // Popular Services section
           // ----------------------------------------------------------------

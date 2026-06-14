@@ -61,8 +61,8 @@ class CategoryCard extends StatelessWidget {
           children: [
             // Icon container
             Container(
-              width: 52,
-              height: 52,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
@@ -70,20 +70,20 @@ class CategoryCard extends StatelessWidget {
               child: Icon(
                 _getIcon(category.id),
                 color: iconColor,
-                size: 28,
+                size: 22,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 6),
             // Category label
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
                 category.name,
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: iconColor,
                   height: 1.3,
