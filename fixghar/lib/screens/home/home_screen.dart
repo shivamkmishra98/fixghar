@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // SliverAppBar with greeting + search
           // ----------------------------------------------------------------
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 120,
             floating: false,
             pinned: true,
             backgroundColor: AppColors.primary,
@@ -93,26 +93,40 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _getGreeting(),
-                                  style: const TextStyle(
+                              children: const [
+                                 Row(
+                                   children: [
+                                     Icon(
+                                       Icons.location_on,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                     SizedBox(width: 4),
+                                     Text(
+                                      "Karimpur",
+                                       style: TextStyle(
+                                         color: Colors.white,
+                                         fontSize: 16,
+                                         fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.keyboard_arrow_down,
+                                       color: Colors.white,
+                                       size: 18,
+                                     ),
+                                   ],
+                                 ),
+                                 SizedBox(height: 2),
+                                 Text(
+                                   "Near Your Location",
+                                   style: TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 13,
+                                     fontSize: 12,
                                   ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  user?.fullName.split(' ').first ??
-                                      'Welcome!',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                                 ),
+                               ],
+                             ),
                             // Notification bell
                             Stack(
                               children: [
@@ -142,15 +156,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 14),
-                        // Sub-tagline
-                        const Text(
-                          AppStrings.whatDoYouNeed,
-                          style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 13,
-                          ),
                         ),
                       ],
                     ),
@@ -322,6 +327,48 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         //---------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------
+        SliverToBoxAdapter(
+          child: Container(
+           color: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _trustItem(
+                  Icons.shield,
+                 "Verified",
+                 "Professionals",
+                ),
+
+                _trustItem(
+                 Icons.verified,
+                  "Reliable",
+                  "& Trusted",
+                ),
+
+                _trustItem(
+                 Icons.access_time,
+                 "On-Time",
+                 "Service",
+                ),
+
+                _trustItem(
+                  Icons.support_agent,
+                  "24/7",
+                  "Support",
+                ),
+              ],
+            ),
+          ),
+        ),
+        //---------------------------------------------------------------------------------
+
+
+        //---------------------------------------------------------------------------------
         //FLAT 20% OFF Banner
         //---------------------------------------------------------------------------------
           SliverToBoxAdapter(
@@ -423,6 +470,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
+Widget _trustItem(
+  IconData icon,
+  String line1,
+  String line2,
+) {
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(
+        icon,
+        color: const Color(0xFF4CAF50),
+        size: 24,
+      ),
+      const SizedBox(height: 2),
+      Text(
+        line1,
+        style: const TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+          height: 1.0,
+        ),
+      ),
+      Text(
+        line2,
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+          height: 1.0,
+        ),
+      ),
+    ],
+  );
+}
+
 
 /// Horizontal "popular service" card used in the scrollable list
 class _PopularServiceCard extends StatelessWidget {
