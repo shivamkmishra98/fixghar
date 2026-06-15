@@ -200,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
           // ----------------------------------------------------------------
           // Categories section
           // ----------------------------------------------------------------
@@ -230,25 +229,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Category grid — 4 columns
-          // SliverPadding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 20),
-          //   sliver: SliverGrid(
-          //     delegate: SliverChildBuilderDelegate(
-          //       (context, index) => CategoryCard(
-          //         category: categories[index],
-          //         onTap: () => _openCategory(categories[index]),
-          //       ),
-          //       childCount: categories.length,
-          //     ),
-          //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //       crossAxisCount: 4,
-          //       childAspectRatio: 1.0,
-          //       crossAxisSpacing: 12,
-          //       mainAxisSpacing: 12,
-          //     ),
-          //   ),
-          // ),
           SliverToBoxAdapter(
             child: SizedBox(
               height: 110,
@@ -308,7 +288,99 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
+        //---------------------------------------------------------------------------------
+        //FLAT 20% OFF Banner
+        //---------------------------------------------------------------------------------
+          SliverToBoxAdapter(
+  child: Padding(
+    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+    child: Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F8F2),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: const BoxDecoration(
+              color: Color(0xFF5AAA45),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.percent,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "FLAT 20% OFF",
+                  style: TextStyle(
+                    color: Color(0xFF4E9A3E),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  "On your first booking",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Color(0xFFCFE5C7),
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Use Code: FIRST20",
+                  style: TextStyle(
+                    color: Color(0xFF4E9A3E),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(width: 6),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 10,
+                  color: Color(0xFF4E9A3E),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
           // ----------------------------------------------------------------
           // Bottom padding
           // ----------------------------------------------------------------
