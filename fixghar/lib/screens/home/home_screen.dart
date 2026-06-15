@@ -6,6 +6,7 @@ import '../../models/service_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/category_card.dart';
 import '../services/service_list_screen.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 /// Main home screen showing greeting, search bar, and service category grid
 class HomeScreen extends StatefulWidget {
@@ -200,6 +201,38 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          //-----------------------------------------------------------------
+          //top hero section
+          //-----------------------------------------------------------------
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: CarouselSlider(
+                 options: CarouselOptions(
+                   height: 180,
+                   autoPlay: true,
+                   autoPlayInterval: const Duration(seconds: 4),
+                   viewportFraction: 1.0,
+                   enlargeCenterPage: false,
+                 ),
+                 items: [
+                   'assets/images/banners/ac_offer.png',
+                   'assets/images/banners/plumbing_banner.png',
+                   'assets/images/banners/cleaning_banner.png',
+                 ].map((imagePath) {
+                   return ClipRRect(
+                     borderRadius: BorderRadius.circular(18),
+                     child: Image.asset(
+                       imagePath,
+                       width: double.infinity,
+                       fit: BoxFit.cover,
+                     ),
+                   );
+                 }).toList(),
+               ),
+             ),
+           ),
+          //-----------------------------------------------------------------
           // ----------------------------------------------------------------
           // Categories section
           // ----------------------------------------------------------------
@@ -272,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Horizontal scrollable popular service chips
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 160,
+              height: 220,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -409,6 +442,29 @@ class _PopularServiceCard extends StatelessWidget {
       default: return Icons.build_rounded;
     }
   }
+  //------------------------------------------------
+  // Popular Services card image mapping (AC, Cleaning, Plumbing, etc.)
+  //------------------------------------------------
+  String _getImage(String id) {
+  switch (id) {
+    case 'ac_repair':
+      return 'assets/images/services/ac.png';
+    case 'cleaning':
+      return 'assets/images/services/cleaning.png';
+    case 'plumbing':
+      return 'assets/images/services/plumbing.png';
+    case 'carpentry':
+      return 'assets/images/services/carpentry.png';
+    case 'electrical':
+      return 'assets/images/services/electrical.png';
+    case 'pest_control':
+      return 'assets/images/services/pest.png';
+    case 'appliance_repair':
+      return 'assets/images/services/appliance.png';
+    default:
+      return 'assets/images/services/ac.png';
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -416,10 +472,10 @@ class _PopularServiceCard extends StatelessWidget {
     final fg = AppColors.categoryIconColors[category.colorIndex];
 
     return Container(
-      width: 130,
+      width: 170,
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: fg.withValues(alpha: 0.1),
@@ -428,20 +484,23 @@ class _PopularServiceCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: fg.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              _getImage(category.id),
+              height: 100,
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
-            child: Icon(_getIcon(category.id), color: fg, size: 24),
           ),
+
+
+          const SizedBox(height: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
