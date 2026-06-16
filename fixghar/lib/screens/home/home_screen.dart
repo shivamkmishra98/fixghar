@@ -8,6 +8,8 @@ import '../../widgets/category_card.dart';
 import '../services/service_list_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../services/location_service.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 /// Main home screen showing greeting, search bar, and service category grid
 class HomeScreen extends StatefulWidget {
@@ -22,6 +24,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String location = "Shivam Test";
   final LocationService _locationService = LocationService();
+
+  final TextEditingController _locationSearchController =
+    TextEditingController();
+
+  List<String> _placeSuggestions = [];
 
   @override
   void initState() {
@@ -38,6 +45,31 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+  Future<void> _searchPlaces(String query) async {
+  if (query.isEmpty) {
+    setState(() {
+      _placeSuggestions = [];
+    });
+    return;
+  }
+
+  const apiKey = "AIzaSyAURTGJuPNFtfK1H_yKP2iANEgYLu01rNA";
+
+  final url =
+      "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$apiKey";
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+
+    setState(() {
+      _placeSuggestions = (data['predictions'] as List)
+          .map((e) => e['description'].toString())
+          .toList();
+    });
+  }
+}
 
   @override
   void dispose() {
@@ -73,6 +105,115 @@ class _HomeScreenState extends State<HomeScreen> {
       _openCategory(match.first);
     }
   }
+  void _showLocationBottomSheet() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) {
+      // return Container(
+      //   padding: const EdgeInsets.all(20),
+      //   child: const Text("Choose Location"),
+      // );
+      return Container(
+       padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+           const Text(
+              "Select delivery location",
+              style: TextStyle(
+                fontSize: 18,
+               fontWeight: FontWeight.bold,
+             ),
+            ),
+
+           const SizedBox(height: 16),
+
+          //  TextField(
+          //    decoration: InputDecoration(
+          //      hintText: "Search area, street name...",
+          //      prefixIcon: const Icon(Icons.search),
+          //      filled: true,
+          //       fillColor: Colors.grey.shade100,
+          //      border: OutlineInputBorder(
+          //        borderRadius: BorderRadius.circular(12),
+          //        borderSide: BorderSide.none,
+          //       ),
+          //     ),
+          //  ),
+          TextField(
+            controller: _locationSearchController,
+            onChanged: (value) {
+              _searchPlaces(value);
+            },
+            decoration: InputDecoration(
+             hintText: "Search area, street name...",
+             prefixIcon: const Icon(Icons.search),
+             filled: true,
+             fillColor: Colors.grey.shade100,
+             border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          if (_placeSuggestions.isNotEmpty)
+            SizedBox(
+              height: 200,
+             child: ListView.builder(
+               itemCount: _placeSuggestions.length,
+               itemBuilder: (context, index) {
+                 return ListTile(
+                   leading: const Icon(Icons.location_on),
+                    title: Text(_placeSuggestions[index]),
+                    onTap: () {
+                      setState(() {
+                        location = _placeSuggestions[index];
+                      });
+
+                     Navigator.pop(context);
+                   },
+                 );
+               },
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            ListTile(
+              leading: const Icon(
+               Icons.my_location,
+               color: Colors.green,
+             ),
+             title: const Text("Use current location"),
+              subtitle: const Text("Tap to fetch location"),
+              onTap: () async {
+                Navigator.pop(context);
+                await _loadLocation();
+              },
+           ),
+
+            const Divider(),
+
+           ListTile(
+             leading: const Icon(Icons.add),
+             title: const Text("Add new address"),
+             onTap: () {},
+           ),
+
+           ListTile(
+             leading: const Icon(Icons.home_outlined),
+             title: const Text("Home"),
+              subtitle: const Text("Saved address"),
+              onTap: () {},
+            ),
+         ],
+       ),
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +253,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
+                          GestureDetector(
+                            onTap: () {
+                              _showLocationBottomSheet();
+                           },
+                          child:Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
@@ -148,6 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
+                          ),
                             // Notification bell
                             Stack(
                               children: [
