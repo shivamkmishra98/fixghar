@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/category_card.dart';
 import '../services/service_list_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../../services/location_service.dart';
 
 /// Main home screen showing greeting, search bar, and service category grid
 class HomeScreen extends StatefulWidget {
@@ -18,6 +19,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
+
+  String location = "Shivam Test";
+  final LocationService _locationService = LocationService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocation();
+  }
+
+  Future<void> _loadLocation() async {
+    String address = await _locationService.getCurrentAddress();
+
+    if (mounted) {
+      setState(() {
+        location = address;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -46,8 +66,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onSearch(String query) {
     if (query.trim().isEmpty) return;
     // Find matching category and navigate, or show generic results
-    final match = ServiceCategory.all.where((c) =>
-        c.name.toLowerCase().contains(query.toLowerCase())).toList();
+    final match = ServiceCategory.all
+        .where((c) => c.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
     if (match.isNotEmpty) {
       _openCategory(match.first);
     }
@@ -93,40 +114,40 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                 Row(
-                                   children: [
-                                     Icon(
-                                       Icons.location_on,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
                                       color: Colors.white,
                                       size: 18,
                                     ),
-                                     SizedBox(width: 4),
-                                     Text(
-                                      "Karimpur",
-                                       style: TextStyle(
-                                         color: Colors.white,
-                                         fontSize: 16,
-                                         fontWeight: FontWeight.w600,
+                                    SizedBox(width: 4),
+                                    Text(
+                                      location,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Icon(
                                       Icons.keyboard_arrow_down,
-                                       color: Colors.white,
-                                       size: 18,
-                                     ),
-                                   ],
-                                 ),
-                                 SizedBox(height: 2),
-                                 Text(
-                                   "Near Your Location",
-                                   style: TextStyle(
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  "Near Your Location",
+                                  style: TextStyle(
                                     color: Colors.white70,
-                                     fontSize: 12,
+                                    fontSize: 12,
                                   ),
-                                 ),
-                               ],
-                             ),
+                                ),
+                              ],
+                            ),
                             // Notification bell
                             Stack(
                               children: [
@@ -213,30 +234,30 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: CarouselSlider(
-                 options: CarouselOptions(
-                   height: 180,
-                   autoPlay: true,
-                   autoPlayInterval: const Duration(seconds: 4),
-                   viewportFraction: 1.0,
-                   enlargeCenterPage: false,
-                 ),
-                 items: [
-                   'assets/images/banners/ac_offer.png',
-                   'assets/images/banners/plumbing_banner.png',
-                   'assets/images/banners/cleaning_banner.png',
-                 ].map((imagePath) {
-                   return ClipRRect(
-                     borderRadius: BorderRadius.circular(18),
-                     child: Image.asset(
-                       imagePath,
-                       width: double.infinity,
-                       fit: BoxFit.cover,
-                     ),
-                   );
-                 }).toList(),
-               ),
-             ),
-           ),
+                options: CarouselOptions(
+                  height: 180,
+                  autoPlay: true,
+                  autoPlayInterval: const Duration(seconds: 4),
+                  viewportFraction: 1.0,
+                  enlargeCenterPage: false,
+                ),
+                items: [
+                  'assets/images/banners/ac_offer.png',
+                  'assets/images/banners/plumbing_banner.png',
+                  'assets/images/banners/cleaning_banner.png',
+                ].map((imagePath) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Image.asset(
+                      imagePath,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
           //-----------------------------------------------------------------
           // ----------------------------------------------------------------
           // Categories section
@@ -285,11 +306,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   );
-                 },
-               ),
+                },
               ),
             ),
-          
+          ),
+
           // ----------------------------------------------------------------
           // Popular Services section
           // ----------------------------------------------------------------
@@ -326,141 +347,137 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-        //---------------------------------------------------------------------------------
-        //---------------------------------------------------------------------------------
-        SliverToBoxAdapter(
-          child: Container(
-           color: Colors.white,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _trustItem(
-                  Icons.shield,
-                 "Verified",
-                 "Professionals",
-                ),
-
-                _trustItem(
-                 Icons.verified,
-                  "Reliable",
-                  "& Trusted",
-                ),
-
-                _trustItem(
-                 Icons.access_time,
-                 "On-Time",
-                 "Service",
-                ),
-
-                _trustItem(
-                  Icons.support_agent,
-                  "24/7",
-                  "Support",
-                ),
-              ],
-            ),
-          ),
-        ),
-        //---------------------------------------------------------------------------------
-
-
-        //---------------------------------------------------------------------------------
-        //FLAT 20% OFF Banner
-        //---------------------------------------------------------------------------------
+          //---------------------------------------------------------------------------------
+          //---------------------------------------------------------------------------------
           SliverToBoxAdapter(
-  child: Padding(
-    padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-    child: Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 8,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F8F2),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: const BoxDecoration(
-              color: Color(0xFF5AAA45),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.percent,
+            child: Container(
               color: Colors.white,
-              size: 18,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 2,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  "FLAT 20% OFF",
-                  style: TextStyle(
-                    color: Color(0xFF4E9A3E),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  "On your first booking",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Color(0xFFCFE5C7),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
               ),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Use Code: FIRST20",
-                  style: TextStyle(
-                    color: Color(0xFF4E9A3E),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _trustItem(
+                    Icons.shield,
+                    "Verified",
+                    "Professionals",
                   ),
-                ),
-                SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 10,
-                  color: Color(0xFF4E9A3E),
-                ),
-              ],
+                  _trustItem(
+                    Icons.verified,
+                    "Reliable",
+                    "& Trusted",
+                  ),
+                  _trustItem(
+                    Icons.access_time,
+                    "On-Time",
+                    "Service",
+                  ),
+                  _trustItem(
+                    Icons.support_agent,
+                    "24/7",
+                    "Support",
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
-    ),
-  ),
-),
+          //---------------------------------------------------------------------------------
+
+          //---------------------------------------------------------------------------------
+          //FLAT 20% OFF Banner
+          //---------------------------------------------------------------------------------
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F8F2),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF5AAA45),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.percent,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "FLAT 20% OFF",
+                            style: TextStyle(
+                              color: Color(0xFF4E9A3E),
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            "On your first booking",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color(0xFFCFE5C7),
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Use Code: FIRST20",
+                            style: TextStyle(
+                              color: Color(0xFF4E9A3E),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 10,
+                            color: Color(0xFF4E9A3E),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           // ----------------------------------------------------------------
           // Bottom padding
           // ----------------------------------------------------------------
@@ -507,7 +524,6 @@ Widget _trustItem(
   );
 }
 
-
 /// Horizontal "popular service" card used in the scrollable list
 class _PopularServiceCard extends StatelessWidget {
   final ServiceCategory category;
@@ -516,39 +532,48 @@ class _PopularServiceCard extends StatelessWidget {
 
   IconData _getIcon(String id) {
     switch (id) {
-      case 'ac_repair': return Icons.ac_unit_rounded;
-      case 'cleaning': return Icons.cleaning_services_rounded;
-      case 'plumbing': return Icons.plumbing_rounded;
-      case 'carpentry': return Icons.handyman_rounded;
-      case 'electrical': return Icons.electrical_services_rounded;
-      case 'pest_control': return Icons.bug_report_rounded;
-      case 'appliance_repair': return Icons.kitchen_rounded;
-      default: return Icons.build_rounded;
+      case 'ac_repair':
+        return Icons.ac_unit_rounded;
+      case 'cleaning':
+        return Icons.cleaning_services_rounded;
+      case 'plumbing':
+        return Icons.plumbing_rounded;
+      case 'carpentry':
+        return Icons.handyman_rounded;
+      case 'electrical':
+        return Icons.electrical_services_rounded;
+      case 'pest_control':
+        return Icons.bug_report_rounded;
+      case 'appliance_repair':
+        return Icons.kitchen_rounded;
+      default:
+        return Icons.build_rounded;
     }
   }
+
   //------------------------------------------------
   // Popular Services card image mapping (AC, Cleaning, Plumbing, etc.)
   //------------------------------------------------
   String _getImage(String id) {
-  switch (id) {
-    case 'ac_repair':
-      return 'assets/images/services/ac.png';
-    case 'cleaning':
-      return 'assets/images/services/cleaning.png';
-    case 'plumbing':
-      return 'assets/images/services/plumbing.png';
-    case 'carpentry':
-      return 'assets/images/services/carpentry.png';
-    case 'electrical':
-      return 'assets/images/services/electrical.png';
-    case 'pest_control':
-      return 'assets/images/services/pest.png';
-    case 'appliance_repair':
-      return 'assets/images/services/appliance.png';
-    default:
-      return 'assets/images/services/ac.png';
+    switch (id) {
+      case 'ac_repair':
+        return 'assets/images/services/ac.png';
+      case 'cleaning':
+        return 'assets/images/services/cleaning.png';
+      case 'plumbing':
+        return 'assets/images/services/plumbing.png';
+      case 'carpentry':
+        return 'assets/images/services/carpentry.png';
+      case 'electrical':
+        return 'assets/images/services/electrical.png';
+      case 'pest_control':
+        return 'assets/images/services/pest.png';
+      case 'appliance_repair':
+        return 'assets/images/services/appliance.png';
+      default:
+        return 'assets/images/services/ac.png';
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -582,8 +607,6 @@ class _PopularServiceCard extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-
-
           const SizedBox(height: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
