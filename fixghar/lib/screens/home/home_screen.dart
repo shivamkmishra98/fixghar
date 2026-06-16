@@ -94,6 +94,72 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showAcBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25),
+        ),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "AC Repair & Services",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GridView.count(
+                  shrinkWrap: true,
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 2.5,
+                  children: [
+                    _serviceCard("AC Service"),
+                    _serviceCard("AC Repair"),
+                    _serviceCard("Installation"),
+                    _serviceCard("Uninstallation"),
+                    _serviceCard("Gas Refill"),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _serviceCard(String title) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.blue.shade50,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Center(
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Handles search — filters by query text and navigates to results
   void _onSearch(String query) {
     if (query.trim().isEmpty) return;
@@ -448,7 +514,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.only(right: 8),
                       child: CategoryCard(
                         category: categories[index],
-                        onTap: () => _openCategory(categories[index]),
+                        onTap: () {
+                          if (categories[index].id == 'ac_repair') {
+                            _showAcBottomSheet();
+                          } else {
+                            _openCategory(categories[index]);
+                          }
+                        },
                       ),
                     ),
                   );

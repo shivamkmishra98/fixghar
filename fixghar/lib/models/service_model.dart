@@ -7,9 +7,9 @@ class ServiceModel {
   final String name;
   final String description;
   final String category;
-  final String iconName;       // Material icon name or asset path
-  final double startingPrice;  // Minimum price shown on listing
-  final int durationMinutes;   // Estimated duration in minutes
+  final String iconName; // Material icon name or asset path
+  final double startingPrice; // Minimum price shown on listing
+  final int durationMinutes; // Estimated duration in minutes
   final bool isActive;
   final List<String> subServices; // E.g. ['Deep Cleaning', 'Regular Cleaning']
   final DateTime createdAt;
@@ -79,7 +79,7 @@ class ServiceCategory {
   final String id;
   final String name;
   final String iconAsset; // e.g. 'assets/icons/ac.png'
-  final int colorIndex;   // Index into AppColors.categoryColors
+  final int colorIndex; // Index into AppColors.categoryColors
 
   const ServiceCategory({
     required this.id,
