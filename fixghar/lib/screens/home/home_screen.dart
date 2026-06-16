@@ -10,6 +10,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../../services/location_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Main home screen showing greeting, search bar, and service category grid
 class HomeScreen extends StatefulWidget {
@@ -71,11 +72,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+@override
+void dispose() {
+  _searchController.dispose();
+  _locationSearchController.dispose();
+  super.dispose();
+}
 
   /// Returns time-appropriate greeting
   String _getGreeting() {
@@ -263,9 +265,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const Divider(),
 
            ListTile(
-             leading: const Icon(Icons.add),
-             title: const Text("Add new address"),
-             onTap: () {},
+              leading: const Icon(Icons.add),
+              title: const Text("Add new address"),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddAddressDialog();
+              },
            ),
 
            ListTile(
@@ -276,6 +281,55 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
          ],
        ),
+      );
+    },
+  );
+}
+void _showAddAddressDialog() {
+  final controller = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Add Address"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: "Enter address",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (controller.text.trim().isEmpty) return;
+
+              final auth =
+                  Provider.of<AuthProvider>(context, listen: false);
+
+              await auth.updateProfile({
+                'savedAddresses': FieldValue.arrayUnion([
+                  controller.text.trim()
+                ]),
+              });
+
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Address Saved"),
+                ),
+              );
+            },
+            child: const Text("Save"),
+          ),
+        ],
       );
     },
   );
