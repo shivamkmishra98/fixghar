@@ -7,8 +7,8 @@ class AppColors {
 
   // Primary Brand Colors
   static const Color primary = Color(0xFF1565C0);       // Deep Blue
-  static const Color primaryLight = Color(0xFF5E92F3);  // Light Blue
-  static const Color primaryDark = Color(0xFF003C8F);   // Dark Blue
+  static const Color primaryLight = Color(0xFFE8F5E9);  // Light Blue
+  static const Color primaryDark = Color(0xFF2E7D32);   // Dark Blue
 
   // Secondary / Accent
   static const Color secondary = Color(0xFF00897B);     // Teal

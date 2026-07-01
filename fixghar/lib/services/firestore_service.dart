@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/booking_model.dart';
 import '../models/provider_model.dart';
 import '../models/service_model.dart';
+import '../models/cart_item_model.dart';
 
 /// Handles all Firestore CRUD operations for FixGhar
 /// Acts as a data layer between the app and Firebase
@@ -183,6 +184,66 @@ class FirestoreService {
         .map((snapshot) => snapshot.docs
             .map((doc) => BookingModel.fromFirestore(doc))
             .toList());
+  }
+
+  // ---------------------------------------------------------------------------
+  // Cart Collection
+  // ---------------------------------------------------------------------------
+
+  /// Returns a reference to a user's cart collection
+  CollectionReference _cartCol(String userId) =>
+      _usersCol.doc(userId).collection('cart');
+
+  /// Returns a live stream of the user's cart
+  Stream<List<CartItemModel>> cartStream(String userId) {
+    return _cartCol(userId).orderBy('addedAt').snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => CartItemModel.fromFirestore(doc)).toList());
+  }
+
+  /// Adds a new item to the cart or increments quantity if it exists
+  Future<void> addToCart(String userId, CartItemModel item) async {
+    // Check if the exact service from the exact provider is already in the cart
+    final query = await _cartCol(userId)
+        .where('serviceId', isEqualTo: item.serviceId)
+        .where('providerId', isEqualTo: item.providerId)
+        .limit(1)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      // Item exists, update quantity
+      final docId = query.docs.first.id;
+      final currentQuantity = query.docs.first.data() as Map<String, dynamic>;
+      final newQuantity = (currentQuantity['quantity'] ?? 1) + 1;
+      await _cartCol(userId).doc(docId).update({'quantity': newQuantity});
+    } else {
+      // Add new item
+      await _cartCol(userId).add(item.toFirestore());
+    }
+  }
+
+  /// Updates the quantity of a cart item
+  Future<void> updateCartItemQuantity(
+      String userId, String itemId, int quantity) async {
+    if (quantity <= 0) {
+      await removeFromCart(userId, itemId);
+    } else {
+      await _cartCol(userId).doc(itemId).update({'quantity': quantity});
+    }
+  }
+
+  /// Removes an item from the cart
+  Future<void> removeFromCart(String userId, String itemId) async {
+    await _cartCol(userId).doc(itemId).delete();
+  }
+
+  /// Clears the entire cart for a user
+  Future<void> clearCart(String userId) async {
+    final snapshot = await _cartCol(userId).get();
+    final batch = _db.batch();
+    for (var doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
   }
 
   // ---------------------------------------------------------------------------

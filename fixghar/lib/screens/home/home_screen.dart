@@ -6,11 +6,13 @@ import '../../models/service_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/category_card.dart';
 import '../services/service_list_screen.dart';
+import '../notification/notification_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../services/location_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 /// Main home screen showing greeting, search bar, and service category grid
 class HomeScreen extends StatefulWidget {
@@ -30,11 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
     TextEditingController();
 
   List<String> _placeSuggestions = [];
+    // Voice Search
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
 
   @override
   void initState() {
     super.initState();
     _loadLocation();
+
+    _speech = stt.SpeechToText();
   }
 
   Future<void> _loadLocation() async {
@@ -161,13 +168,46 @@ void dispose() {
       ),
     );
   }
+  Future<void> _startListening() async {
+  if (!_isListening) {
+    bool available = await _speech.initialize();
+
+    if (available) {
+      setState(() {
+        _isListening = true;
+      });
+
+      _speech.listen(
+        onResult: (result) {
+          setState(() {
+            _searchController.text = result.recognizedWords;
+          });
+
+          if (result.finalResult) {
+            _onSearch(result.recognizedWords);
+          }
+        },
+      );
+    }
+  } else {
+    setState(() {
+      _isListening = false;
+    });
+
+    _speech.stop();
+  }
+}
 
   /// Handles search — filters by query text and navigates to results
   void _onSearch(String query) {
     if (query.trim().isEmpty) return;
     // Find matching category and navigate, or show generic results
     final match = ServiceCategory.all
-        .where((c) => c.name.toLowerCase().contains(query.toLowerCase()))
+        .where(
+          (c) =>
+               query.toLowerCase().contains(c.name.toLowerCase()) ||
+               c.name.toLowerCase().contains(query.toLowerCase()),
+        )
         .toList();
     if (match.isNotEmpty) {
       _openCategory(match.first);
@@ -349,29 +389,23 @@ void _showAddAddressDialog() {
           // SliverAppBar with greeting + search
           // ----------------------------------------------------------------
           SliverAppBar(
-            expandedHeight: 120,
+            expandedHeight: 90,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.primary,
+            backgroundColor: Colors.white,
             elevation: 0,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.primaryDark, AppColors.primary],
-                  ),
-                ),
+                color: Colors.white,
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Greeting row
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                           GestureDetector(
                             onTap: () {
@@ -384,15 +418,15 @@ void _showAddAddressDialog() {
                                   children: [
                                     Icon(
                                       Icons.location_on,
-                                      color: Colors.white,
+                                       color: Colors.black87,
                                       size: 18,
                                     ),
                                     SizedBox(width: 4),
                                     Text(
                                       location,
                                       style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -405,86 +439,120 @@ void _showAddAddressDialog() {
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  "Near Your Location",
+                                  'Near Your Location',
                                   style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontSize: 14,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                            // Notification bell
-                            Stack(
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor:
-                                      Colors.white.withValues(alpha: 0.15),
-                                  radius: 22,
-                                  child: const Icon(
-                                    Icons.notifications_outlined,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
-                                ),
-                                // Unread badge
-                                Positioned(
-                                  top: 2,
-                                  right: 2,
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.warning,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                         // Notification bell
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                               context,
+                               MaterialPageRoute(
+                                 builder: (_) => const NotificationScreen(),
+                               ),
+                             );
+                           },
+                           child: Stack(
+                             children: [
+                               CircleAvatar(
+                                 backgroundColor: Colors.grey.shade100,
+                                 radius: 18,
+                                 child: const Icon(
+                                   Icons.notifications_none,
+                                   color: Colors.black87,
+                                   size: 20,
+                                 ),
+                               ),
+                               Positioned(
+                                 top: 2,
+                                 right: 2,
+                                 child: Container(
+                                   width: 10,
+                                   height: 10,
+                                   decoration: const BoxDecoration(
+                                     color: AppColors.warning,
+                                     shape: BoxShape.circle,
+                                   ),
+                                 ),
+                               ),
+                             ],
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
+                     ],
                     ),
                   ),
                 ),
               ),
-            ),
+            ),  
             // Search bar pinned at the bottom of the app bar
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(56),
+              preferredSize: const Size.fromHeight(46),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                 child: Material(
-                  elevation: 4,
-                  borderRadius: BorderRadius.circular(12),
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(25),
                   child: TextField(
                     controller: _searchController,
                     onSubmitted: _onSearch,
-                    decoration: InputDecoration(
-                      hintText: AppStrings.searchServices,
-                      prefixIcon: const Icon(Icons.search_rounded,
-                          color: AppColors.textSecondary),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {});
-                              },
-                            )
-                          : null,
+                  decoration: InputDecoration(
+                      hintText: 'Search for a service...',
+                      hintStyle: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF9CA3AF),
+                      ),
+
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        size: 20,
+                        color: Color(0xFF6B7280),
+                      ),
+
+                      suffixIcon: GestureDetector(
+                        onTap: _startListening,
+                        child: Container(
+                         margin: const EdgeInsets.all(6),
+                         decoration: const BoxDecoration(
+                           color: Color(0xFF4CAF50),
+                           shape: BoxShape.circle,
+                          ),
+                         child: Icon(
+                            _isListening ? Icons.mic : Icons.mic_none,
+                            color: Colors.white,
+                            size: 18,
+                         ),
+                        ),
+                      ),
+
                       filled: true,
                       fillColor: Colors.white,
+
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(25),
                         borderSide: BorderSide.none,
                       ),
+
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                       borderSide: BorderSide.none,
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                       borderRadius: BorderRadius.circular(25),
+                       borderSide: BorderSide.none,
+                      ),
+
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      hintStyle: const TextStyle(
-                        color: AppColors.textHint,
-                        fontSize: 14,
+                       horizontal: 14,
+                       vertical: 10,
                       ),
                     ),
                     onChanged: (_) => setState(() {}),
@@ -603,7 +671,7 @@ void _showAddAddressDialog() {
           // Horizontal scrollable popular service chips
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 220,
+              height: 250,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -707,7 +775,7 @@ void _showAddAddressDialog() {
                             "On your first booking",
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -853,19 +921,26 @@ class _PopularServiceCard extends StatelessWidget {
     final fg = AppColors.categoryIconColors[category.colorIndex];
 
     return Container(
-      width: 170,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: fg.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(10),
+       width: 165,
+       decoration: BoxDecoration(
+         color: Colors.white,
+
+         border: Border.all(
+           color: Color(0xFFE5E7EB),
+           width: 1,
+         ),
+
+         borderRadius: BorderRadius.circular(10),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+           ),
+          ],
+        ),
+      padding: const EdgeInsets.all(6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -874,32 +949,99 @@ class _PopularServiceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: Image.asset(
               _getImage(category.id),
-              height: 100,
+              height: 95,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 category.name,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  color: fg,
+               style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
+                  color: Colors.black87,
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text(
-                'From ₹199',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: fg.withValues(alpha: 0.7),
-                ),
+  
+              const SizedBox(height: 3),
+  
+              const Row(
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                    size: 10,
+                  ),
+                  SizedBox(width: 2),
+                  Text(
+                    '4.7',
+                    style: TextStyle(
+                      fontSize: 11,
+                    ),
+                  ),
+               ],
+              ),
+  
+              const SizedBox(height: 3),
+  
+             const Text(
+               '₹199',
+               style: TextStyle(
+                 color: Color(0xFF2E7D32),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+               ),
+             ),
+
+            const SizedBox(height: 2),
+
+             Row(
+                children: [
+                 Expanded(
+                    child: Container(
+                      height: 34,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xFF4CAF50),
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const Text(
+                        'Book Now',
+                        style: TextStyle(
+                         color: Color(0xFF4CAF50),
+                         fontWeight: FontWeight.w600,
+                         fontSize: 12,
+                        ),
+                     ),
+                   ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                 Container(
+                   width: 34,
+                   height: 34,
+                   decoration: BoxDecoration(
+                     border: Border.all(
+                       color: const Color(0xFFE0E0E0),
+                      ),
+                     shape: BoxShape.circle,
+                   ),
+                   child: const Icon(
+                     Icons.add,
+                     color: Color(0xFF4CAF50),
+                     size: 20,
+                   ),
+                 ),
+                ],
               ),
             ],
           ),

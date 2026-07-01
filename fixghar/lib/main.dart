@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
 import 'providers/booking_provider.dart';
 import 'providers/service_provider.dart';
+import 'providers/cart_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home/main_navigation.dart';
 import 'services/notification_service.dart';
@@ -44,6 +45,11 @@ class FixGharApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, CartProvider>(
+          create: (_) => CartProvider(),
+          update: (_, authProvider, cartProvider) =>
+              cartProvider!..updateUser(authProvider.currentUser?.uid),
+        ),
       ],
       child: MaterialApp(
         title: 'FixGhar',

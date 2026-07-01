@@ -5,6 +5,8 @@ import '../../core/constants/app_strings.dart';
 import '../../models/provider_model.dart';
 import '../../models/service_model.dart';
 import '../../providers/service_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../models/cart_item_model.dart';
 import '../../widgets/service_card.dart';
 import '../booking/booking_screen.dart';
 
@@ -120,6 +122,25 @@ class _ServiceListScreenState extends State<ServiceListScreen> {
                           return ServiceCard(
                             provider: providers[index],
                             onBookTap: () => _openBooking(providers[index]),
+                            onAddToCartTap: () {
+                              final provider = providers[index];
+                              final cartItem = CartItemModel(
+                                id: '',
+                                providerId: provider.id,
+                                providerName: provider.fullName,
+                                serviceId: widget.category.id,
+                                serviceName: widget.category.name,
+                                serviceCategory: widget.category.id,
+                                price: provider.chargePerHour,
+                                quantity: 1,
+                                iconName: widget.category.iconAsset,
+                                addedAt: DateTime.now(),
+                              );
+                              context.read<CartProvider>().addItem(cartItem);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Added to Cart')),
+                              );
+                            },
                           );
                         },
                       ),

@@ -8,12 +8,14 @@ class ServiceCard extends StatelessWidget {
   final ProviderModel provider;
   final VoidCallback onBookTap;
   final VoidCallback? onViewProfile;
+  final VoidCallback? onAddToCartTap;
 
   const ServiceCard({
     super.key,
     required this.provider,
     required this.onBookTap,
     this.onViewProfile,
+    this.onAddToCartTap,
   });
 
   @override
@@ -200,7 +202,22 @@ class ServiceCard extends StatelessWidget {
                   ),
                 if (onViewProfile != null) const SizedBox(width: 10),
                 Expanded(
-                  flex: onViewProfile != null ? 1 : 2,
+                 child: OutlinedButton.icon(
+                   onPressed: onAddToCartTap ?? () {
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       const SnackBar(
+                          content: Text("Added to Cart"),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.shopping_cart_outlined),
+                    label: const Text("Cart"),
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                Expanded(
                   child: ElevatedButton(
                     onPressed: provider.isAvailable ? onBookTap : null,
                     style: ElevatedButton.styleFrom(
@@ -217,8 +234,8 @@ class ServiceCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
-                    ),
-                  ),
+                   ),
+                 ),
                 ),
               ],
             ),
